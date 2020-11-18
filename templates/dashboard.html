@@ -1,0 +1,176 @@
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="text-center my-3">Tracking Issues List</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Issue type</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Description</th>
+                    {% comment %} <th scope="col">Update</th> {% endcomment %}
+                </tr>
+            </thead>
+            <tbody>
+                {%for issue in issues%}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{issue.name}}</td>
+                    <td>{{issue.email}}</td>
+                    <td>{{issue.phone}}</td>
+                    <td>{{issue.issuetype}}</td>
+                    <td>{{issue.status}}</td>
+                    <td>{{issue.desc}}</td>
+                    {% comment %} <td><a href="{% url 'update' issue.id %}" class="btn btn-primary">Update</a></td>  {% endcomment %}
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+         <h2 class="text-center my-3">Total number of Issues {{count}}</h2>
+    </div>
+    <div class="row">
+    <div class="col-sm-12 col-md-6" >
+    <canvas id="myChart" ></canvas>
+    </div>
+     <div class="col-sm-12 col-md-6" >
+    <canvas id="myChart1" ></canvas>
+    </div>
+    </div>
+</body>
+
+<script>
+{% block jquery %}
+var endpoint ='visualchartdata'
+var endpoint1 = 'piechartdata'
+var defaultdata = [];
+var labels = [];
+var label_=[];
+var default_=[];
+$.ajax({ 
+    method: "GET",
+    url:endpoint,
+    success:function(data){
+        labels = data.labels
+        defaultdata = data.default
+        setChart()
+},
+    error:function(error_data){
+        console.log("error")
+        console.log(error_data)
+    }
+})  
+$.ajax({ 
+    method: "GET",
+    url:endpoint1,
+    success:function(data_pi){
+        label_ = data_pi.label_
+        default_data = data_pi.default_
+        set_Chart()
+},
+    error:function(error_data){
+        console.log("error")
+        console.log(error_data)
+    }
+})  
+function setChart(){
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '# of Votes',
+                data: defaultdata,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+}
+function set_Chart(){
+    var ctx1 = document.getElementById('myChart1').getContext('2d');
+    var myChart = new Chart(ctx1, {
+        type: 'polarArea',
+        data: {
+            labels: label_,
+            datasets: [{
+                label: '# of Votes',
+                data: default_data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+}
+ 
+{% endblock  %}
+</script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+</html>
